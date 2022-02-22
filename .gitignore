@@ -1,3 +1,3 @@
 data/train
 data/val
-model/
+model/vqvae_hard_biggerset_011.pt
