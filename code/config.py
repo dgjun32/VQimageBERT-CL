@@ -6,11 +6,9 @@ cfg = edict()
 cfg.model = edict()
 cfg.model.h_dim = 1024
 cfg.model.n_layers = 36
-cfg.model.vocab_size = 8092
-cfg.model.seq_len = 49
+cfg.model.vocab_size = 8192
+cfg.model.seq_len = 1024
 cfg.model.n_heads = 8
-cfg.model.res_h_dim = 1024
-cfg.model.n_res_layers = 3
 
 cfg.path = edict()
 cfg.path.train_image_dir = '../data/train'
@@ -20,9 +18,7 @@ cfg.train = edict()
 cfg.train.optimizer = 'torch.optim.Adam'
 cfg.train.lr_sched = 'torch.optim.lr_scheduler.OneCycleLR'
 cfg.train.n_epochs = 100
-cfg.train.n_steps = 100000
+cfg.train.n_steps = 1000000
 cfg.train.batch_size = 128
 cfg.train.lr = 0.01
 cfg.train.betas = (0.9, 0.95)
-
-cfg.train_vq = edict()

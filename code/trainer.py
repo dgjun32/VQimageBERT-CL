@@ -31,6 +31,7 @@ class Trainer:
             print('-'*30 + '{}th epoch'.format(epoch) + '-'*30)
             epoch_loss, epoch_step = 0, 0
             for batch in self.train_dataloader:
+                optimizer.zero_grad()
                 # forward propagation
                 loss = self.model(batch)
                 # backward propagation
@@ -54,6 +55,7 @@ class Trainer:
                 loss = self.model(batch)
                 val_loss += loss.item()
             print('| validation loss : {} | lr : {} |'.format(val_loss / step, lr_sched.get_lr[0]))
+
                 
 
 
