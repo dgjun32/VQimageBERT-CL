@@ -7,8 +7,8 @@ cfg.model = edict()
 cfg.model.h_dim = 1024
 cfg.model.n_layers = 36
 cfg.model.vocab_size = 8192
-cfg.model.seq_len = 1024
-cfg.model.n_heads = 8
+cfg.model.seq_len = 256
+cfg.model.n_heads = 16
 
 cfg.path = edict()
 cfg.path.train_image_dir = '../data/train'

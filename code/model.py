@@ -35,16 +35,14 @@ class TransformerBlock(nn.Module):
                 h_dim,
                 dropout = 0.1):
         super().__init__()
-        self.future_mask = future_mask(seq_len-1)
-        self.ln_1 = nn.LayerNorm((seq_len-1, h_dim))
+        self.ln_1 = nn.LayerNorm((seq_len, h_dim))
         self.msa = nn.MultiheadAttention(h_dim, n_heads, batch_first=True, dropout=dropout)
-        self.ln_2 = nn.LayerNorm((seq_len-1, h_dim))
+        self.ln_2 = nn.LayerNorm((seq_len, h_dim))
         self.mlp = PositionwiseFFN(h_dim, rate=4)
     
     def forward(self, x):
         x1 = self.ln_1(x)
         x1= self.msa(x1, x1, x1,
-                    attn_mask=self.future_mask,
                     need_weights=False)[0] + x
         x2 = self.ln_2(x1)
         x2 = self.mlp(x2) + x1
@@ -66,7 +64,7 @@ class VQImageBERT(nn.Module):
                             embed_dim=256, 
                             n_embed=vocab_size, 
                             stride=6)
-        state_dict = torch.load('../model/vqvae_hard_biggerset_011.pt')
+        state_dict = torch.load('../model/vqvae_hard_biggerset_011.pt', map_location='cpu')
         new_loaded = dict()
         for key, value in state_dict.items():
             new_loaded[key.replace("module.", "")] = value
@@ -85,18 +83,17 @@ class VQImageBERT(nn.Module):
 
     def forward(self, x):
         # extract image tokens using pretrained VQ-VAE
-        with torch.no_grad():
-            _, _, x = self.vqvae.encode(x)
-        image_tokens = x.view(x.shape[0], x.shape[2]*x.shape[3])
-        # random masking for MIM objective
+        _, _, x = self.vqvae.encode(x)
+        image_tokens = x.view(x.shape[0], x.shape[1]*x.shape[2])
+        e = self.embedding(image_tokens)
+        # random masking image token for MIM objective
         mask = torch.rand(image_tokens.shape) > 0.85
-        x = image_tokens.masked_fill(mask, 8192)
-
-        x = self.embedding(x)
+        masked_image_tokens = image_tokens.masked_fill(mask, 8192)
+        x = self.embedding(masked_image_tokens)
         x = x + self.position_encoding
         x = self.transformers(x)
         target = image_tokens
-        return x, target
+        return x, target, e, masked_image_tokens
 
 
         

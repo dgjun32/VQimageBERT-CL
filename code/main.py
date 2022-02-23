@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from model import VQImageBERT
-from loss import VQImageBERTObj
+from objective import VQImageBERTObj
 from datasets import ImageDataset
 from config import cfg
 from trainer import Trainer
