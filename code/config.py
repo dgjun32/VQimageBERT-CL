@@ -15,6 +15,7 @@ cfg.path.train_image_dir = '../data/train'
 cfg.path.val_image_dir = '../data/val'
 
 cfg.train = edict()
+cfg.train.gamma = 0.7
 cfg.train.optimizer = 'torch.optim.Adam'
 cfg.train.lr_sched = 'torch.optim.lr_scheduler.OneCycleLR'
 cfg.train.n_epochs = 100

@@ -92,6 +92,7 @@ class VQImageBERT(nn.Module):
         x = self.embedding(masked_image_tokens)
         x = x + self.position_encoding
         x = self.transformers(x)
+        x = nn.functional.normalize(x, dim=2)
         target = image_tokens
         return x, target, e, masked_image_tokens
 

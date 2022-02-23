@@ -33,7 +33,8 @@ class Trainer:
             for batch in self.train_dataloader:
                 optimizer.zero_grad()
                 # forward propagation
-                loss = self.model(batch)
+                mim_loss, nce_loss = self.model(batch)
+                loss = mim_loss + self.cfg.gamma*nce_loss
                 # backward propagation
                 loss.backward()
                 optimizer.step()
