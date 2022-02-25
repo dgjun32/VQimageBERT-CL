@@ -1,14 +1,15 @@
 import torch
 import torch.nn as nn
+from resource import getrusage, RUSAGE_SELF
 
 class Trainer:
     def __init__(self, train_dataset, val_dataset, model, cfg):
         self.model = model
         self.cfg = cfg.train
         self.train_dataloader = torch.utils.data.DataLoader(train_dataset,
-                                                    batch_size=cfg.batch_size)
+                                                    batch_size=self.cfg.batch_size)
         self.val_dataloader = torch.utils.data.DataLoader(val_dataset,
-                                                    batch_size=cfg.batch_size*2)
+                                                    batch_size=self.cfg.batch_size*2)
 
     def train(self):
         flag = True
@@ -42,8 +43,10 @@ class Trainer:
                 epoch_step += 1
                 epoch_loss += loss.item()
                 # vervosity
-                if (epoch_step) % 5000 == 0:
-                    print('| epoch_step / {} | NLLloss : {}'.format(len(self.train_dataloader), epoch_loss/epoch_step))
+                print("Peak memory (MiB):",
+                    int(getrusage(RUSAGE_SELF).ru_maxrss / 1024/1024))
+                if (epoch_step) % 5 == 0:
+                    print('| {} / {} | NLLloss : {}'.format(epoch_step, len(self.train_dataloader), epoch_loss/epoch_step))
             lr_sched.step()
             self.evaluate(lr_sched)
 

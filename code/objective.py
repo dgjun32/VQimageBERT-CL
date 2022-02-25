@@ -26,13 +26,14 @@ class NCEObj(nn.Module):
         embedding : ground truth token embedding shape of (batch_size, seq_len, h_dim)
         masked_target : masked token id shape of (batch_size, seq_len)
         '''
+        batch_size, seq_len, h_dim = x.shape
         mask_idx = torch.where(masked_target==8192)
         loss, count = 0.0, 0.0
         for i, j in zip(*mask_idx):
             i, j = i.item(), j.item()
             f, m = embedding[i,j,:], x[i,j,:]
             numer = torch.dot(f, m).exp()
-            denumer = torch.matmul(f.view(1,-1), x.view(-1,1024).permute(1,0)).exp().sum()
+            denumer = torch.matmul(f.view(1,-1), x.view(-1,h_dim).permute(1,0)).exp().sum()
             loss += torch.log(numer/denumer)
             count += 1
         return -(loss / count)
