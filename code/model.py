@@ -84,17 +84,17 @@ class VQImageBERT(nn.Module):
     def forward(self, x):
         # extract image tokens using pretrained VQ-VAE
         _, _, x = self.vqvae.encode(x)
-        image_tokens = x.view(x.shape[0], x.shape[1]*x.shape[2])
-        e = self.embedding(image_tokens)
+        t = x.view(x.shape[0], x.shape[1]*x.shape[2])
+        e = self.embedding(t)
         # random masking image token for MIM objective
-        mask = torch.rand(image_tokens.shape) > 0.85
-        masked_image_tokens = image_tokens.masked_fill(mask, 8192)
-        x = self.embedding(masked_image_tokens)
+        mask = torch.rand(t.shape) > 0.85
+        t_m = t.masked_fill(mask, 8192)
+        # forward propagation
+        x = self.embedding(t_m)
         x = x + self.position_encoding
         x = self.transformers(x)
         x = nn.functional.normalize(x, dim=2)
-        target = image_tokens
-        return x, target, e, masked_image_tokens
+        return x, t, e, t_m
 
 
         

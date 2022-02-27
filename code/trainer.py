@@ -27,10 +27,9 @@ class Trainer:
                                            pct_start=0.02,
                                            final_div_factor=1e+7)
         # start training
-        total_step = 0
         for epoch in range(self.cfg.n_epochs):
             print('-'*30 + '{}th epoch'.format(epoch) + '-'*30)
-            epoch_loss, epoch_step = 0, 0
+            epoch_mim_loss, epoch_nce_loss, epoch_total_loss, epoch_step = 0, 0, 0, 0
             for batch in self.train_dataloader:
                 optimizer.zero_grad()
                 # forward propagation
@@ -39,14 +38,19 @@ class Trainer:
                 # backward propagation
                 loss.backward()
                 optimizer.step()
-                total_step += 1
+                # update verbosity
                 epoch_step += 1
-                epoch_loss += loss.item()
-                # vervosity
+                epoch_mim_loss += mim_loss.item()
+                epoch_nce_loss += nce_loss.item()
+                epoch_total_loss += loss.item()
                 print("Peak memory (MiB):",
                     int(getrusage(RUSAGE_SELF).ru_maxrss / 1024/1024))
                 if (epoch_step) % 5 == 0:
-                    print('| {} / {} | NLLloss : {}'.format(epoch_step, len(self.train_dataloader), epoch_loss/epoch_step))
+                    print("| {} / {} | loss : '{:.3f}' | MIMLoss : '{:.3f}' | NCELoss : '{:.3f}' |".format(epoch_step,
+                                                                            len(self.train_dataloader),
+                                                                            epoch_mim_loss/epoch_step,
+                                                                            epoch_nce_loss/epoch_step,
+                                                                            epoch_total_loss/epoch_step))
             lr_sched.step()
             self.evaluate(lr_sched)
 
