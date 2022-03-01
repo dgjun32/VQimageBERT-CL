@@ -8,11 +8,9 @@ from config import cfg
 from trainer import Trainer
 
 if __name__ == '__main__':
-    
     model_obj = VQImageBERTObj(cfg)
     train_dataset = ImageDataset('train', cfg)
     val_dataset = ImageDataset('val', cfg)
 
-    # train
     algo = Trainer(train_dataset, val_dataset, model_obj, cfg)
     algo.train()

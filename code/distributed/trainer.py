@@ -1,9 +1,11 @@
 import torch
 import torch.nn as nn
+import os
 
 class Trainer:
     def __init__(self, train_dataset, val_dataset, model, cfg):
-        self.model = model
+        os.environ["CUDA_VISIBLE_DEVICES"] = '0, 1, 2'
+        self.model = nn.DataParallel(model, output_device=2)
         self.cfg = cfg.train
         self.train_dataloader = torch.utils.data.DataLoader(train_dataset,
                                                     batch_size=self.cfg.batch_size)
@@ -13,7 +15,8 @@ class Trainer:
     def train(self):
         flag = True
         step_count = 0
-        
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = self.model.to(device)
         # set optimizer & lr scheduler
         optimizer = eval(self.cfg.optimizer)(self.model.parameters(),
                                              lr=self.cfg.lr, 
@@ -25,9 +28,6 @@ class Trainer:
                                            max_lr=self.cfg.lr,
                                            pct_start=0.02,
                                            final_div_factor=1e+7)
-        # set device
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = self.model.to(device)
         # start training
         for epoch in range(self.cfg.n_epochs):
             print('-'*30 + '{}th epoch'.format(epoch) + '-'*30)
@@ -36,7 +36,7 @@ class Trainer:
                 optimizer.zero_grad()
                 # forward propagation
                 mim_loss, nce_loss = self.model(batch.to(device))
-                loss = mim_loss + self.cfg.gamma*nce_loss
+                loss = mim_loss + self.cfg.gamma * nce_loss
                 # backward propagation
                 loss.backward()
                 optimizer.step()
