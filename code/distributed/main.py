@@ -13,4 +13,4 @@ if __name__ == '__main__':
     val_dataset = ImageDataset('val', cfg)
 
     algo = Trainer(train_dataset, val_dataset, model_obj, cfg)
-    algo.train()
+    algo.train(start_step = 0)

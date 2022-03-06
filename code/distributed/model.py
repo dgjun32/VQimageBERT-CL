@@ -87,7 +87,7 @@ class VQImageBERT(nn.Module):
         t = x.view(x.shape[0], x.shape[1]*x.shape[2])
         e = self.embedding(t)
         # random masking image token for MIM objective
-        mask = torch.rand(t.shape) > 0.85
+        mask = torch.rand(t.shape).cuda() > 0.85
         t_m = t.masked_fill(mask, 8192)
         # forward propagation
         x = self.embedding(t_m)
@@ -95,7 +95,3 @@ class VQImageBERT(nn.Module):
         x = self.transformers(x)
         x = nn.functional.normalize(x, dim=2)
         return x, t, e, t_m
-
-
-        
-
